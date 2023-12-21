@@ -1,0 +1,98 @@
+{
+  "name": "vite-plugin-node-browser",
+  "type": "module",
+  "version": "0.0.0",
+  "packageManager": "pnpm@8.11.0",
+  "description": "vite plugin.",
+  "license": "MIT",
+  "homepage": "https://github.com/xparcai/vite-plugin-node-browser#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xparcai/vite-plugin-node-browser.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xparcai/vite-plugin-node-browser/issues"
+  },
+  "keywords": [
+    "vite",
+    "vite-plugin"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./*": "./*"
+  },
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "*": [
+        "./dist/*",
+        "./*"
+      ]
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": "18.x || 20.x"
+  },
+  "scripts": {
+    "dev": "tsup --watch src",
+    "build": "tsup",
+    "build:fix": "esno scripts/postbuild.ts",
+    "play": "npm -C playground run dev",
+    "prepublishOnly": "npm run build",
+    "release": "bumpp && npm publish",
+    "start": "esno src/index.ts",
+    "test": "vitest",
+    "test:update": "vitest -u",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preinstall": "only-allow pnpm",
+    "prepare": "npx simple-git-hooks",
+    "precommit": "esno verify-commit.ts",
+    "deps": "nr deps:patch",
+    "deps:patch": "taze patch -wri",
+    "deps:minor": "taze minor -wri",
+    "deps:major": "taze major -wri",
+    "clean": "nr clean:dist && nr clean:deps",
+    "clean:dist": "rimraf dist",
+    "clean:deps": "rimraf node_modules"
+  },
+  "dependencies": {
+    "vite": "^5.0.4"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.1.2",
+    "@types/node": "^20.10.2",
+    "bumpp": "^9.2.0",
+    "chalk": "^5.3.0",
+    "cross-env": "^7.0.3",
+    "debug": "^4.3.4",
+    "eslint": "^8.55.0",
+    "esno": "^4.0.0",
+    "fast-glob": "^3.3.2",
+    "lint-staged": "^15.1.0",
+    "nodemon": "^3.0.2",
+    "only-allow": "^1.2.1",
+    "rimraf": "^5.0.5",
+    "simple-git-hooks": "^2.9.0",
+    "taze": "^0.13.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.2",
+    "vitest": "^0.34.6"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm dlx lint-staged",
+    "commit-msg": "pnpm run precommit"
+  },
+  "lint-staged": {
+    "*": "pnpm run lint:fix"
+  }
+}
