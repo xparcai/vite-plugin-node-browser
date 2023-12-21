@@ -1,14 +1,68 @@
 import type { PluginOption } from 'vite'
-import type { Options } from './types'
+import rollupInject from '@rollup/plugin-inject'
+import stdLibBrowser from 'node-stdlib-browser'
+import esbuildPlugin from 'node-stdlib-browser/helpers/esbuild/plugin'
+import { handleCircularDependancyWarning } from 'node-stdlib-browser/helpers/rollup/plugin'
+import type { LoggingFunction, RollupLog } from 'rollup'
 
-function createPlugin(options?: Options): PluginOption {
+function createPlugin(): PluginOption {
   return {
     name: 'vite-plugin-node-browser',
-    transform(code, id: string) {
-      if (id.endsWith('main.ts'))
-        return code.replace('__PLUGIN__', `Hello Vite Plugin! ${options}`)
-      return null
-    },
+    config: () => ({
+      resolve: {
+        alias: stdLibBrowser,
+      },
+      optimizeDeps: {
+        include: ['buffer', 'process'],
+        esbuildOptions: {
+          inject: [
+            require.resolve('node-stdlib-browser/helpers/esbuild/shim'),
+          ],
+          define: {
+            Buffer: 'Buffer',
+            process: 'process',
+            global: 'global',
+          },
+          plugins: [
+            esbuildPlugin(stdLibBrowser),
+            {
+              name: 'fixed-node-stdlib-browser-shim',
+              setup(build) {
+                build.onResolve(
+                  { filter: /node-stdlib-browser\/helpers\/esbuild\/shim/ },
+                  ({ path }) => ({ path }),
+                )
+              },
+            },
+          ],
+        },
+      },
+      build: {
+        rollupOptions: {
+          onwarn: (warning: RollupLog, rollupWarn: LoggingFunction) => {
+            handleCircularDependancyWarning(warning, rollupWarn)
+          },
+          plugins: [
+            {
+              ...rollupInject({
+                global: [
+                  require.resolve('node-stdlib-browser/helpers/esbuild/shim'),
+                  'global',
+                ],
+                process: [
+                  require.resolve('node-stdlib-browser/helpers/esbuild/shim'),
+                  'process',
+                ],
+                Buffer: [
+                  require.resolve('node-stdlib-browser/helpers/esbuild/shim'),
+                  'Buffer',
+                ],
+              }),
+            },
+          ],
+        },
+      },
+    }),
   }
 }
 
