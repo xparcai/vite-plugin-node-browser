@@ -1,11 +1,9 @@
-import type { PluginOption } from 'vite'
-import rollupInject from '@rollup/plugin-inject'
-import stdLibBrowser from 'node-stdlib-browser'
-import esbuildPlugin from 'node-stdlib-browser/helpers/esbuild/plugin'
-import { handleCircularDependancyWarning } from 'node-stdlib-browser/helpers/rollup/plugin'
-import type { LoggingFunction, RollupLog } from 'rollup'
+const rollupInject = require('@rollup/plugin-inject')
+const stdLibBrowser = require('node-stdlib-browser')
+const esbuildPlugin = require('node-stdlib-browser/helpers/esbuild/plugin')
+const { handleCircularDependancyWarning: onWarn } = require('node-stdlib-browser/helpers/rollup/plugin')
 
-function createPlugin(): PluginOption {
+function plugin() {
   return {
     name: 'vite-plugin-node-browser',
     config: () => ({
@@ -15,13 +13,11 @@ function createPlugin(): PluginOption {
       optimizeDeps: {
         include: ['buffer', 'process'],
         esbuildOptions: {
-          inject: [
-            require.resolve('node-stdlib-browser/helpers/esbuild/shim'),
-          ],
+          inject: [require.resolve('node-stdlib-browser/helpers/esbuild/shim')],
           define: {
-            Buffer: 'Buffer',
-            process: 'process',
             global: 'global',
+            process: 'process',
+            Buffer: 'Buffer',
           },
           plugins: [
             esbuildPlugin(stdLibBrowser),
@@ -39,9 +35,7 @@ function createPlugin(): PluginOption {
       },
       build: {
         rollupOptions: {
-          onwarn: (warning: RollupLog, rollupWarn: LoggingFunction) => {
-            handleCircularDependancyWarning(warning, rollupWarn)
-          },
+          onwarn: (warning, rollupWarn) => onWarn(warning, rollupWarn),
           plugins: [
             {
               ...rollupInject({
@@ -66,4 +60,4 @@ function createPlugin(): PluginOption {
   }
 }
 
-export default createPlugin
+module.exports = plugin
