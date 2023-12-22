@@ -1,7 +1,7 @@
 const rollupInject = require('@rollup/plugin-inject')
 const stdLibBrowser = require('node-stdlib-browser')
 const esbuildPlugin = require('node-stdlib-browser/helpers/esbuild/plugin')
-const { handleCircularDependancyWarning: onWarn } = require('node-stdlib-browser/helpers/rollup/plugin')
+const { handleCircularDependancyWarning: onwarn } = require('node-stdlib-browser/helpers/rollup/plugin')
 
 function plugin() {
   return {
@@ -35,7 +35,7 @@ function plugin() {
       },
       build: {
         rollupOptions: {
-          onwarn: (warning, rollupWarn) => onWarn(warning, rollupWarn),
+          onwarn,
           plugins: [
             {
               ...rollupInject({
