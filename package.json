@@ -20,13 +20,13 @@
   "exports": {
     ".": {
       "types": "./src/index.d.ts",
-      "import": "./src/mjs.js",
-      "require": "./src/cjs.js"
+      "import": "./src/index.js",
+      "require": "./src/index.js"
     },
     "./*": "./*"
   },
-  "main": "src/cjs.js",
-  "module": "src/mjs.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
   "types": "src/index.d.ts",
   "typesVersions": {
     "*": {
